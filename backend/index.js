@@ -1,7 +1,26 @@
 import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
+import viewsRouter from './routes/views.js';
+import librosRouter from './routes/libros.js';
+import prestamosRouter from './routes/prestamos.js';
+import usuariosRouter from './routes/usuarios.js';
+import reservasRouter from './routes/reservas.js';
+import multasRouter from './routes/multas.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 const { Pool } = pkg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Para que React maneje el routing en el frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const app = express();
 app.use(cors());
@@ -27,6 +46,13 @@ app.get('/api/optimized-query', async (req, res) => {
   const duration = Date.now() - start;
   res.json({ duration, rows: result.rows });
 });
+
+app.use('/api/views', viewsRouter);
+app.use('/api/libros', librosRouter);
+app.use('/api/prestamos', prestamosRouter);
+app.use('/api/usuarios', usuariosRouter);
+app.use('/api/reservas', reservasRouter);
+app.use('/api/multas', multasRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
